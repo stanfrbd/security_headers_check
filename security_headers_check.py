@@ -38,8 +38,8 @@ def remove_empty_lines(txt):
     non_empty_lines = [line for line in lines if line.strip() != ""]
     string_without_empty_lines = ""
     for line in non_empty_lines:
-      string_without_empty_lines += line + " - "
-    return string_without_empty_lines
+      string_without_empty_lines += line.replace(";", " ") + " - "
+    return string_without_empty_lines.replace(",", " ")
 
 def export_to_csv():
     print("\nGenerated CSV: ./security-headers-" + today + "-export.csv\n")
