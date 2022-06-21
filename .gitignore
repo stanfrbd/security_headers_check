@@ -1,0 +1,6 @@
+env-virtuel/
+*.csv
+*.txt
+*test*
+*.json
+*format*
