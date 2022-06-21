@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
-# Stanislas M. 2021-09-28
+# Stanislas M. 2022-06-20
 
 """
+usage: security_headers_check.py [-h] [-u URL] [-i INPUT_FILE]
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -u URL, --url URL     http://example.com -- it will export to csv in the current directory
+  -i INPUT_FILE, --input-file INPUT_FILE
+                        Choose the path to input file containing URLs e.g. "test.txt" -- it will export to csv in the
+                        current directory
 """
 
 import json
@@ -45,16 +52,18 @@ def scan(url):
         base_text = base_request.text
 
         soup = BeautifulSoup(base_text, "html.parser")
-        print("##", soup.title.string) 
+        print("\nTitle: ", soup.title.string) 
 
         # score
-
         try: 
             score_div = soup.find_all("div", class_="score")
             score = re.search("[A-Z]", str(score_div[0])).group()
         except Exception: 
-            score = "Unknown" 
-            
+            score = "Unknown"
+
+        print("Score: ", score)
+        print("URL:   ", securityheaders_url)    
+        
         # CSV text
         csv += site + "," + score + "," + securityheaders_url + "\n"
 
@@ -68,7 +77,7 @@ def scan(url):
 # URL -u / --url
 
 def action_url(txt):
-    print(txt)
+    print("# ", txt)
     scan(txt)
 
 # INPUT_FILE -i / --input-file
