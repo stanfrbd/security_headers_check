@@ -28,13 +28,22 @@ today = now.strftime("%Y-%m-%d-%H_%M_%S")
 
 # CSV
 
-csv = "site,score,security_headers_url\n"
+csv = "site,score,missing_headers,warnings,security_headers_url\n"
 
 # CHECKS
 
+# Credit: https://www.adamsmith.haus/python/answers/how-to-remove-empty-lines-from-a-string-in-python
+def remove_empty_lines(txt):
+    lines = txt.split("\n")
+    non_empty_lines = [line for line in lines if line.strip() != ""]
+    string_without_empty_lines = ""
+    for line in non_empty_lines:
+      string_without_empty_lines += line + " - "
+    return string_without_empty_lines
+
 def export_to_csv():
-    print("\nGenerated CSV: ./" + today + "-export.csv\n")
-    f = open(today + "-export.csv", "a")
+    print("\nGenerated CSV: ./security-headers-" + today + "-export.csv\n")
+    f = open("security-headers-" + today + "-export.csv", "a")
     f.write(csv)
     f.close()
 
@@ -45,6 +54,8 @@ def scan(url):
 
     site = url
     score = ""
+    missing_headers = ""
+    warnings = ""
     securityheaders_url = "https://securityheaders.com/?q=" + url + "&followRedirects=on"
     base_request = requests.get(securityheaders_url)
 
@@ -54,18 +65,34 @@ def scan(url):
         soup = BeautifulSoup(base_text, "html.parser")
         print("\nTitle: ", soup.title.string) 
 
-        # score
-        try: 
+        
+        try:
+            # score
             score_div = soup.find_all("div", class_="score")
             score = re.search("[A-Z]", str(score_div[0])).group()
+
+            report_sections = soup.find_all("div", class_="reportSection")
+
+            # missing headers
+            missing_headers = remove_empty_lines(report_sections[3].get_text())
+
+            # warnings
+            warnings = remove_empty_lines(report_sections[4].get_text())
+
         except Exception: 
             score = "Unknown"
+            missing_headers = "Unknown"
+            warnings = "Unknown"
 
         print("Score: ", score)
-        print("URL:   ", securityheaders_url)    
+        print("URL:   ", securityheaders_url)
+        
+        # debug - included in csv.
+        # print(missing_headers)
+        # print(warnings)
         
         # CSV text
-        csv += site + "," + score + "," + securityheaders_url + "\n"
+        csv += site + "," + score + "," + missing_headers + "," + warnings + "," + securityheaders_url + "\n"
 
         # Export
         export_to_csv()
