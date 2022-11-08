@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Stanislas M. 2022-06-20
+# Stanislas M. 2022-11-08
 
 """
 usage: security_headers_check.py [-h] [-u URL] [-i INPUT_FILE]
@@ -26,9 +26,50 @@ from datetime import datetime
 now = datetime.now()
 today = now.strftime("%Y-%m-%d-%H_%M_%S")
 
+# Required Headers
+
+"""
+Required HTTP 1.1 (HTTPS):
+Content-Security-Policy
+HTTP Strict-Transport-Security
+X-Content-Type-Options
+Cache-Control
+
+Required HTTP 1.0 (HTTPS):
+Content-Security-Policy
+HTTP Strict-Transport-Security
+X-Content-Type-Options
+Expires
+
+"""
+
+REQUIRED_HEADERS_HTTP_10_OR_11 = [ "Cache-Control", "Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "Expires" ]
+
+# Optional Headers
+
+"""
+Access-Control-Allow-Origin HTTP/1.0 / HTTP/1.1
+
+Location HTTP/1.0 / HTTP/1.1
+
+Set-Cookie HTTP/1.0 / HTTP/1.1
+
+WWW-Authenticate HTTP/1.0 / HTTP/1.1
+
+X-Frame-Options HTTP/1.0 / HTTP/1.1
+
+X-XSS-Protection HTTP/1.0 / HTTP/1.1
+
+Permissions-Policy HTTP/1.0 / HTTP/1.1
+
+Referrer-Policy HTTP/1.0 / HTTP/1.1
+"""
+
+OPTIONAL_HEADERS = [ "Access-Control-Allow-Origin", "Location", "Set-Cookie", "WWW-Authenticate", "X-Frame-Options", "X-XSS-Protection", "Permissions-Policy", "Referrer-Policy" ]
+
 # CSV
 
-csv = "site,score,missing_headers,warnings,security_headers_url\n"
+csv = "site,score,missing_required_headers,missing_optional_headers,warnings,security_headers_url\n"
 
 # CHECKS
 
@@ -47,6 +88,29 @@ def export_to_csv():
     f.write(csv)
     f.close()
 
+def check_missing_required_headers(txt):
+    missing_found = False
+    found_missing_required_headers = ""
+    for el in REQUIRED_HEADERS_HTTP_10_OR_11:
+        if el in txt:
+            missing_found = True
+            found_missing_required_headers += el + " | "
+    if missing_found == False:
+        return "No issue"
+    return found_missing_required_headers
+
+def check_missing_optional_headers(txt):
+    missing_found = False
+    found_missing_optional_headers = ""
+    for el in OPTIONAL_HEADERS:
+        if el in txt:
+            missing_found = True
+            found_missing_optional_headers +=  el + " | "
+    if missing_found == False:
+        return "No issue"        
+    return found_missing_optional_headers
+
+
 # Core function
 
 def scan(url):
@@ -54,7 +118,8 @@ def scan(url):
 
     site = url
     score = ""
-    missing_headers = ""
+    missing_req_headers = ""
+    missing_opt_headers = ""
     warnings = ""
     securityheaders_url = "https://securityheaders.com/?q=" + url + "&followRedirects=on"
     base_request = requests.get(securityheaders_url)
@@ -67,35 +132,46 @@ def scan(url):
 
         
         try:
-            # score
+            # Score
             score_div = soup.find_all("div", class_="score")
             score = re.search("[A-Z]", str(score_div[0])).group()
 
+            # Dividing content in sections
             report_sections = soup.find_all("div", class_="reportSection")
 
-            # missing headers
-            missing_headers = remove_empty_lines(report_sections[3].get_text())
+            # Missing Headers or Warnings
+            extracted_data3 = remove_empty_lines(report_sections[3].get_text())
+            if "Missing Headers" in extracted_data3:
+                missing_req_headers = check_missing_required_headers(extracted_data3)
+                missing_opt_headers = check_missing_optional_headers(extracted_data3)
+            elif "Warnings" in extracted_data3:
+                warnings = extracted_data3
+                missing_req_headers = "No issue"
+                missing_opt_headers = "No issue"
 
-            # warnings
-            warnings = remove_empty_lines(report_sections[4].get_text())
+            # Warnings if exist
+            extracted_data4 = remove_empty_lines(report_sections[4].get_text())
+            if "Warnings" in extracted_data4:
+                warnings = extracted_data4
+            else:
+                warnings = ""
 
         except Exception: 
             score = "Unknown"
-            missing_headers = "Unknown"
+            missing_req_headers = "Unknown"
+            missing_opt_headers = "Unknown"
             warnings = "Unknown"
 
         print("Score: ", score)
         print("URL:   ", securityheaders_url)
         
-        # debug - included in csv.
-        # print(missing_headers)
-        # print(warnings)
-        
         # CSV text
-        csv += site + "," + score + "," + missing_headers + "," + warnings + "," + securityheaders_url + "\n"
+        csv += site + "," + score + "," + missing_req_headers + "," + missing_opt_headers + "," + warnings + "," + securityheaders_url + "\n"
 
         # Export
         export_to_csv()
+
+        # clear variables
         csv = ""
 
     else:
