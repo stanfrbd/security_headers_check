@@ -76,7 +76,7 @@ URL:    https://securityheaders.com/?q=example.com&followRedirects=on
 
 Generated CSV: ./security-headers-2022-06-21-10_44_41-export.csv
 
-#  toto.com
+#  toto.cuik
 
 Title:  Scan results for toto.cuik
 Score:  Unknown
