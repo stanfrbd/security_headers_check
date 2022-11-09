@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Stanislas M. 2022-11-08
+# Stanislas M. 2022-11-09
 
 """
 usage: security_headers_check.py [-h] [-u URL] [-i INPUT_FILE]
@@ -21,55 +21,50 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 from datetime import datetime
 
-# Current date
+# CSV separator
+SEP = ","
 
+# Current date
 now = datetime.now()
 today = now.strftime("%Y-%m-%d-%H_%M_%S")
 
 # Required Headers
-
 """
-Required HTTP 1.1 (HTTPS):
-Content-Security-Policy
-HTTP Strict-Transport-Security
-X-Content-Type-Options
-Cache-Control
+| Required HTTP 1.1 (HTTPS):     |
+| ------------------------------ |
+| Content-Security-Policy        |
+| HTTP Strict-Transport-Security |
+| X-Content-Type-Options         |
+| Cache-Control                  |
 
-Required HTTP 1.0 (HTTPS):
-Content-Security-Policy
-HTTP Strict-Transport-Security
-X-Content-Type-Options
-Expires
-
+| Required HTTP 1.0 (HTTPS):     |
+| ------------------------------ |
+| Content-Security-Policy        |
+| HTTP Strict-Transport-Security |
+| X-Content-Type-Options         |
+| Expires                        |
 """
 
 REQUIRED_HEADERS_HTTP_10_OR_11 = [ "Cache-Control", "Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "Expires" ]
 
 # Optional Headers
-
 """
-Access-Control-Allow-Origin HTTP/1.0 / HTTP/1.1
-
-Location HTTP/1.0 / HTTP/1.1
-
-Set-Cookie HTTP/1.0 / HTTP/1.1
-
-WWW-Authenticate HTTP/1.0 / HTTP/1.1
-
-X-Frame-Options HTTP/1.0 / HTTP/1.1
-
-X-XSS-Protection HTTP/1.0 / HTTP/1.1
-
-Permissions-Policy HTTP/1.0 / HTTP/1.1
-
-Referrer-Policy HTTP/1.0 / HTTP/1.1
+| Header                      | HTTP Versions       |
+| --------------------------- | ------------------- |
+| Access-Control-Allow-Origin | HTTP/1.0 / HTTP/1.1 |
+| Location                    | HTTP/1.0 / HTTP/1.1 |
+| Set-Cookie                  | HTTP/1.0 / HTTP/1.1 |
+| WWW-Authenticate            | HTTP/1.0 / HTTP/1.1 |
+| X-Frame-Options             | HTTP/1.0 / HTTP/1.1 |
+| X-XSS-Protection            | HTTP/1.0 / HTTP/1.1 |
+| Permissions-Policy          | HTTP/1.0 / HTTP/1.1 |
+| Referrer-Policy             | HTTP/1.0 / HTTP/1.1 |
 """
 
 OPTIONAL_HEADERS = [ "Access-Control-Allow-Origin", "Location", "Set-Cookie", "WWW-Authenticate", "X-Frame-Options", "X-XSS-Protection", "Permissions-Policy", "Referrer-Policy" ]
 
-# CSV
-
-csv = "site,score,missing_required_headers,missing_optional_headers,warnings,security_headers_url\n"
+# CSV Headers
+csv = "site" + SEP + "score" + SEP + "httpforwarding" + SEP + "missing_required_headers" + SEP + "missing_optional_headers" + SEP + "warnings" + SEP + "security_headers_url" + "\n"
 
 # CHECKS
 
@@ -110,14 +105,35 @@ def check_missing_optional_headers(txt):
         return "No issue"        
     return found_missing_optional_headers
 
+def check_http_forwarding(url):
+    try:
+        if "http" not in url:
+            url = "https://" + url
+        response = requests.get(url, timeout=10)
+    except:
+        return "Unreachable"
+	
+    try:
+        if response.history:
+            if len(response.history) == 1:
+                # Redirect URL
+                return response.url
+            else:
+                # Last forwarding URL
+                return response.history[len(response.history) - 1].url
+        else:
+            return "No forwarding"
+    except:
+        return "Unknown"
 
-# Core function
+# CORE FUNCTION
 
 def scan(url):
     global csv
 
     site = url
     score = ""
+    httpforwarding = ""
     missing_req_headers = ""
     missing_opt_headers = ""
     warnings = ""
@@ -130,7 +146,7 @@ def scan(url):
         soup = BeautifulSoup(base_text, "html.parser")
         print("\nTitle: ", soup.title.string) 
 
-        
+        # https://securityheaders.com
         try:
             # Score
             score_div = soup.find_all("div", class_="score")
@@ -162,11 +178,15 @@ def scan(url):
             missing_opt_headers = "Unknown"
             warnings = "Unknown"
 
+        # HTTP Forwarding
+        httpforwarding = check_http_forwarding(url)
+
         print("Score: ", score)
         print("URL:   ", securityheaders_url)
+        print("HTTP Forwarding: ", httpforwarding)
         
         # CSV text
-        csv += site + "," + score + "," + missing_req_headers + "," + missing_opt_headers + "," + warnings + "," + securityheaders_url + "\n"
+        csv += site + SEP + score + SEP + httpforwarding + SEP + missing_req_headers + SEP + missing_opt_headers + SEP + warnings + SEP + securityheaders_url + "\n"
 
         # Export
         export_to_csv()
@@ -218,4 +238,3 @@ if __name__ == "__main__":
     except Exception as err: 
         print("General error : ", err) 
         exit(1)
-    
