@@ -19,6 +19,15 @@ optional arguments:
                         current directory
 ```
 
+## Proxy
+
+If you need to use a proxy, then write it at the beginning of the script in the variable `proxy`.
+
+```
+# Your proxy here...
+proxy = "http://your.proxy.there:8080"
+```
+
 ## Using a single domain
 
 ```

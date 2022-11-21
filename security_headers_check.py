@@ -24,6 +24,9 @@ from datetime import datetime
 # CSV separator
 SEP = ","
 
+# Your proxy here...
+proxy = ""
+
 # Current date
 now = datetime.now()
 today = now.strftime("%Y-%m-%d-%H_%M_%S")
@@ -107,9 +110,10 @@ def check_missing_optional_headers(txt):
 
 def check_http_forwarding(url):
     try:
+        proxy_servers = { 'http': proxy, 'https': proxy }
         if "http" not in url:
             url = "https://" + url
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10, proxies=proxy_servers)
     except:
         return "Unreachable"
 	
@@ -131,6 +135,8 @@ def check_http_forwarding(url):
 def scan(url):
     global csv
 
+    proxy_servers = { 'http': proxy, 'https': proxy }
+
     site = url
     score = ""
     httpforwarding = ""
@@ -138,7 +144,7 @@ def scan(url):
     missing_opt_headers = ""
     warnings = ""
     securityheaders_url = "https://securityheaders.com/?q=" + url + "&followRedirects=on"
-    base_request = requests.get(securityheaders_url)
+    base_request = requests.get(securityheaders_url, proxies=proxy_servers)
 
     if base_request.status_code == 200:
         base_text = base_request.text
@@ -236,5 +242,5 @@ if __name__ == "__main__":
     try: 
         main() 
     except Exception as err: 
-        print("General error : ", err) 
+        print("General error: ", err) 
         exit(1)
