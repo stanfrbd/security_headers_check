@@ -9,14 +9,16 @@ pip install -r requirements.txt
 ## Usage
 
 ```
-usage: security_headers_check.py [-h] [-u URL] [-i INPUT_FILE]
+usage: security_headers_check.py [-h] [-u URL] [-i INPUT_FILE] [-f {csv,xlsx}]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -u URL, --url URL     http://example.com -- it will export to csv in the current directory
   -i INPUT_FILE, --input-file INPUT_FILE
                         Choose the path to input file containing URLs e.g. "test.txt" -- it will export to csv in the
                         current directory
+  -f {csv,xlsx}, --format {csv,xlsx}
+                        Choose the export format: csv (default) or xlsx
 ```
 
 ## Proxy
@@ -53,16 +55,12 @@ toto.cuik
 ## Result of execution
 
 ```
-#  duckduckgo.com
-
 Title:  Scan results for duckduckgo.com
 Score:  A
 URL:    https://securityheaders.com/?q=duckduckgo.com&followRedirects=on
 HTTP Forwarding:  No forwarding
 
 Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
-
-#  google.com
 
 Title:  Scan results for google.com
 Score:  D
@@ -71,8 +69,6 @@ HTTP Forwarding:  https://www.google.com/
 
 Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
 
-#  facebook.com
-
 Title:  Scan results for facebook.com
 Score:  A
 URL:    https://securityheaders.com/?q=facebook.com&followRedirects=on
@@ -80,16 +76,12 @@ HTTP Forwarding:  https://www.facebook.com/
 
 Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
 
-#  example.com
-
 Title:  Scan results for example.com
 Score:  F
 URL:    https://securityheaders.com/?q=example.com&followRedirects=on
 HTTP Forwarding:  No forwarding
 
 Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
-
-#  toto.cuik
 
 Title:  Scan results for toto.cuik
 Score:  Unknown
@@ -111,3 +103,13 @@ facebook.com,A,https://www.facebook.com/,No issue,Permissions-Policy | Referrer-
 example.com,F,No forwarding,Content-Security-Policy | X-Content-Type-Options | ,X-Frame-Options | Permissions-Policy | Referrer-Policy | ,Warnings - Site is using HTTPThis site was served over HTTP and did not redirect to HTTPS.  - ,https://securityheaders.com/?q=example.com&followRedirects=on
 toto.cuik,Unknown,Unreachable,Unknown,Unknown,Unknown,https://securityheaders.com/?q=toto.cuik&followRedirects=on
 ```
+
+## Using a file containing domains with Excel export
+
+```
+python3 security_headers_check.py -i sample.txt -f xlsx
+```
+
+## Result of execution in Excel
+
+add image here
