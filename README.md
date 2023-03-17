@@ -112,4 +112,4 @@ python3 security_headers_check.py -i sample.txt -f xlsx
 
 ## Result of execution in Excel
 
-add image here
+![image](https://user-images.githubusercontent.com/44167150/225928301-e5f3bfeb-af6a-416f-a286-7f26b17ffc2c.png)
