@@ -236,19 +236,19 @@ def scan(url):
             report_sections = soup.find_all("div", class_="reportSection")
 
             # Missing Headers or Warnings
-            extracted_data3 = remove_empty_lines(report_sections[3].get_text())
-            if "Missing Headers" in extracted_data3:
-                missing_req_headers = check_missing_required_headers(extracted_data3)
-                missing_opt_headers = check_missing_optional_headers(extracted_data3)
-            elif "Warnings" in extracted_data3:
-                warnings = extracted_data3
+            extracted_data1 = remove_empty_lines(report_sections[1].get_text())
+            if "Missing Headers" in extracted_data1:
+                missing_req_headers = check_missing_required_headers(extracted_data1)
+                missing_opt_headers = check_missing_optional_headers(extracted_data1)
+            elif "Warnings" in extracted_data1:
+                warnings = extracted_data1
                 missing_req_headers = "No issue"
                 missing_opt_headers = "No issue"
 
             # Warnings if exist
-            extracted_data4 = remove_empty_lines(report_sections[4].get_text())
-            if "Warnings" in extracted_data4:
-                warnings = extracted_data4
+            extracted_data2 = remove_empty_lines(report_sections[2].get_text())
+            if "Warnings" in extracted_data2:
+                warnings = extracted_data2
             else:
                 warnings = ""
 
