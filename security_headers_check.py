@@ -141,6 +141,19 @@ def export_to_excel(data, filename):
     table.tableStyleInfo = table_style
     ws.add_table(table)
 
+    # Adjust columns width
+    for column in ws.iter_cols():
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws.column_dimensions[column_letter].width = adjusted_width
+
     # Save the workbook
     wb.save(filename)
 
