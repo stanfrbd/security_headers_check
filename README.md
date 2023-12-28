@@ -60,35 +60,27 @@ Score:  A
 URL:    https://securityheaders.com/?q=duckduckgo.com&followRedirects=on
 HTTP Forwarding:  No forwarding
 
-Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
-
 Title:  Scan results for google.com
-Score:  D
+Score:  C
 URL:    https://securityheaders.com/?q=google.com&followRedirects=on
 HTTP Forwarding:  https://www.google.com/
-
-Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
 
 Title:  Scan results for facebook.com
 Score:  A
 URL:    https://securityheaders.com/?q=facebook.com&followRedirects=on
-HTTP Forwarding:  https://www.facebook.com/
-
-Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
+HTTP Forwarding:  No forwarding
 
 Title:  Scan results for example.com
 Score:  F
 URL:    https://securityheaders.com/?q=example.com&followRedirects=on
 HTTP Forwarding:  No forwarding
 
-Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
-
 Title:  Scan results for toto.cuik
 Score:  Unknown
 URL:    https://securityheaders.com/?q=toto.cuik&followRedirects=on
 HTTP Forwarding:  Unreachable
 
-Generated CSV: ./security-headers-2022-11-09-16_55_14-export.csv
+Generated CSV: ./security-headers-2023-12-28-09_35_40-export.csv
 ```
 
 Since `toto.cuik` is not available for scanning, we don't know its score.
