@@ -28,6 +28,9 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+# disable ssl warning in case of proxy like Zscaler which breaks ssl...
+requests.packages.urllib3.disable_warnings()
+
 # Your proxy here...
 proxy = ""
 
@@ -185,7 +188,7 @@ def check_http_forwarding(url):
         proxy_servers = { 'http': proxy, 'https': proxy }
         if "http" not in url:
             url = "https://" + url
-        response = requests.get(url, timeout=10, proxies=proxy_servers)
+        response = requests.get(url, timeout=10, proxies=proxy_servers, verify=False)
     except:
         return "Unreachable"
 	
@@ -218,7 +221,7 @@ def scan(url):
     missing_opt_headers = ""
     warnings = ""
     securityheaders_url = "https://securityheaders.com/?q=" + url + "&followRedirects=on"
-    base_request = requests.get(securityheaders_url, proxies=proxy_servers)
+    base_request = requests.get(securityheaders_url, proxies=proxy_servers, verify=False)
 
     if base_request.status_code == 200:
         base_text = base_request.text
