@@ -317,7 +317,11 @@ def main():
 
 if __name__ == "__main__":
     try: 
-        main() 
+        main()
+    except KeyboardInterrupt:
+        print("\nKeyboardInterrupt Detected.")
+        print("Exiting...")
+        exit(0)
     except Exception as err: 
         print("General error: ", err) 
         exit(1)
